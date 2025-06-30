@@ -48,14 +48,25 @@ export default function InviteRow({ invite }) {
           {titleCase(status)}
         </td>
         <td className="px-6">
-          {invite.claimedBy
-            ? invite.claimedBy?.username || "deleted user"
-            : "--"}
+          <p
+            title={
+              Array.isArray(invite.claimedBy)
+                ? invite.claimedBy.map((user) => user.username).join(", ")
+                : invite.claimedBy?.username || "deleted user"
+            }
+          >
+            {Array.isArray(invite.claimedBy)
+              ? invite.claimedBy
+                  .slice(0, 5)
+                  .map((user) => user.username)
+                  .join(", ")
+              : invite.claimedBy?.username || "deleted user"}
+          </p>
         </td>
         <td className="px-6">{invite.createdBy?.username || "deleted user"}</td>
         <td className="px-6">{invite.createdAt}</td>
         <td className="px-6 flex items-center gap-x-6 h-full mt-1">
-          {status === "pending" && (
+          {(status === "pending" || status === "active") && (
             <>
               <button
                 onClick={copyInviteLink}

@@ -7,13 +7,20 @@ const Invite = {
     return uuidAPIKey.create().apiKey;
   },
 
-  create: async function ({ createdByUserId = 0, workspaceIds = [] }) {
+  create: async function ({
+    createdByUserId = 0,
+    workspaceIds = [],
+    maxUses = null,
+  }) {
     try {
       const invite = await prisma.invites.create({
         data: {
           code: this.makeCode(),
           createdBy: createdByUserId,
           workspaceIds: JSON.stringify(workspaceIds),
+          maxUses: maxUses,
+          usedCount: 0,
+          claimedByUsers: JSON.stringify([]),
         },
       });
       return { invite, error: null };
@@ -38,9 +45,62 @@ const Invite = {
 
   markClaimed: async function (inviteId = null, user) {
     try {
+      // Get current invite to check limits and existing users
+      const currentInvite = await prisma.invites.findFirst({
+        where: { id: Number(inviteId) },
+      });
+
+      if (!currentInvite) {
+        return { success: false, error: "Invite not found" };
+      }
+
+      // Check if invite is still available
+      if (currentInvite.status === "disabled") {
+        return { success: false, error: "Invite has been disabled" };
+      }
+
+      // Parse current claimed users
+      const claimedUsers = safeJsonParse(currentInvite.claimedByUsers) || [];
+
+      // Check if user already claimed this invite
+      if (claimedUsers.includes(user.id)) {
+        return {
+          success: false,
+          error: "User has already claimed this invite",
+        };
+      }
+
+      // Check usage limits
+      if (
+        currentInvite.maxUses !== null &&
+        currentInvite.usedCount >= currentInvite.maxUses
+      ) {
+        return { success: false, error: "Invite usage limit reached" };
+      }
+
+      // Add user to claimed users list
+      const updatedClaimedUsers = [...claimedUsers, user.id];
+      const newUsedCount = currentInvite.usedCount + 1;
+
+      // Determine new status
+      let newStatus = currentInvite.status;
+      if (
+        currentInvite.maxUses !== null &&
+        newUsedCount >= currentInvite.maxUses
+      ) {
+        newStatus = "exhausted"; // All uses consumed
+      } else if (newUsedCount === 1 && currentInvite.status === "pending") {
+        newStatus = "active"; // First use
+      }
+
       const invite = await prisma.invites.update({
         where: { id: Number(inviteId) },
-        data: { status: "claimed", claimedBy: user.id },
+        data: {
+          status: newStatus,
+          claimedByUsers: JSON.stringify(updatedClaimedUsers),
+          usedCount: newUsedCount,
+          lastUpdatedAt: new Date(),
+        },
       });
 
       try {
@@ -117,12 +177,23 @@ const Invite = {
     try {
       const invites = await this.where(clause, limit);
       for (const invite of invites) {
-        if (invite.claimedBy) {
-          const acceptedUser = await User.get({ id: invite.claimedBy });
-          invite.claimedBy = {
-            id: acceptedUser?.id,
-            username: acceptedUser?.username,
-          };
+        // Handle multiple claimed users
+        if (invite.claimedByUsers) {
+          const claimedUserIds = safeJsonParse(invite.claimedByUsers) || [];
+          const claimedUsers = [];
+
+          for (const userId of claimedUserIds) {
+            const acceptedUser = await User.get({ id: userId });
+            if (acceptedUser) {
+              claimedUsers.push({
+                id: acceptedUser.id,
+                username: acceptedUser.username,
+              });
+            }
+          }
+
+          invite.claimedBy = claimedUsers; // Keep backward compatibility with field name
+          invite.claimedUsers = claimedUsers; // New field for clarity
         }
 
         if (invite.createdBy) {
@@ -138,6 +209,32 @@ const Invite = {
       console.error(error.message);
       return [];
     }
+  },
+
+  // Check if invite is still available for use
+  isAvailable: function (invite, userId = null) {
+    if (!invite) return false;
+    if (invite.status === "disabled") return false;
+    if (invite.status === "exhausted") return false;
+
+    // Check usage limits
+    if (invite.maxUses !== null && invite.usedCount >= invite.maxUses)
+      return false;
+
+    // Check if specific user already claimed (if userId provided)
+    if (userId) {
+      const claimedUsers = safeJsonParse(invite.claimedByUsers) || [];
+      if (claimedUsers.includes(userId)) return false;
+    }
+
+    return true;
+  },
+
+  // Get remaining uses for an invite
+  getRemainingUses: function (invite) {
+    if (!invite) return 0;
+    if (invite.maxUses === null) return "unlimited";
+    return Math.max(0, invite.maxUses - invite.usedCount);
   },
 };
 

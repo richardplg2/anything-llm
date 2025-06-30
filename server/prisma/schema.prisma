@@ -2,14 +2,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Uncomment the following lines and comment out the SQLite datasource block above to use PostgreSQL
-// Make sure to set the correct DATABASE_URL in your .env file
-// After swapping run `yarn prisma:setup` from the root directory to migrate the database
-//
-// datasource db {
-//   provider = "postgresql"
-//   url      = env("DATABASE_URL")
-// }
 datasource db {
   provider = "sqlite"
   url      = "file:../storage/anythingllm.db"
@@ -30,23 +22,25 @@ model workspace_documents {
   docpath              String
   workspaceId          Int
   metadata             String?
-  pinned               Boolean?              @default(false)
-  watched              Boolean?              @default(false)
   createdAt            DateTime              @default(now())
   lastUpdatedAt        DateTime              @default(now())
-  workspace            workspaces            @relation(fields: [workspaceId], references: [id])
+  pinned               Boolean?              @default(false)
+  watched              Boolean?              @default(false)
   document_sync_queues document_sync_queues?
+  workspace            workspaces            @relation(fields: [workspaceId], references: [id])
 }
 
 model invites {
-  id            Int      @id @default(autoincrement())
-  code          String   @unique
-  status        String   @default("pending")
-  claimedBy     Int?
-  workspaceIds  String?
-  createdAt     DateTime @default(now())
-  createdBy     Int
-  lastUpdatedAt DateTime @default(now())
+  id             Int      @id @default(autoincrement())
+  code           String   @unique
+  status         String   @default("pending")
+  claimedByUsers String?
+  maxUses        Int?
+  usedCount      Int      @default(0)
+  workspaceIds   String?
+  createdAt      DateTime @default(now())
+  createdBy      Int
+  lastUpdatedAt  DateTime @default(now())
 }
 
 model system_settings {
@@ -61,27 +55,27 @@ model users {
   id                          Int                           @id @default(autoincrement())
   username                    String?                       @unique
   password                    String
-  pfpFilename                 String?
   role                        String                        @default("default")
   suspended                   Int                           @default(0)
-  seen_recovery_codes         Boolean?                      @default(false)
   createdAt                   DateTime                      @default(now())
   lastUpdatedAt               DateTime                      @default(now())
+  pfpFilename                 String?
+  seen_recovery_codes         Boolean?                      @default(false)
   dailyMessageLimit           Int?
   bio                         String?                       @default("")
-  workspace_chats             workspace_chats[]
-  workspace_users             workspace_users[]
-  embed_configs               embed_configs[]
-  embed_chats                 embed_chats[]
-  threads                     workspace_threads[]
-  recovery_codes              recovery_codes[]
-  password_reset_tokens       password_reset_tokens[]
-  workspace_agent_invocations workspace_agent_invocations[]
-  slash_command_presets       slash_command_presets[]
   browser_extension_api_keys  browser_extension_api_keys[]
-  temporary_auth_tokens       temporary_auth_tokens[]
-  system_prompt_variables     system_prompt_variables[]
+  embed_chats                 embed_chats[]
+  embed_configs               embed_configs[]
+  password_reset_tokens       password_reset_tokens[]
   prompt_history              prompt_history[]
+  recovery_codes              recovery_codes[]
+  slash_command_presets       slash_command_presets[]
+  system_prompt_variables     system_prompt_variables[]
+  temporary_auth_tokens       temporary_auth_tokens[]
+  workspace_agent_invocations workspace_agent_invocations[]
+  workspace_chats             workspace_chats[]
+  threads                     workspace_threads[]
+  workspace_users             workspace_users[]
 }
 
 model recovery_codes {
@@ -132,22 +126,22 @@ model workspaces {
   lastUpdatedAt                DateTime                       @default(now())
   openAiPrompt                 String?
   similarityThreshold          Float?                         @default(0.25)
-  chatProvider                 String?
   chatModel                    String?
   topN                         Int?                           @default(4)
   chatMode                     String?                        @default("chat")
   pfpFilename                  String?
-  agentProvider                String?
+  chatProvider                 String?
   agentModel                   String?
+  agentProvider                String?
   queryRefusalResponse         String?
   vectorSearchMode             String?                        @default("default")
-  workspace_users              workspace_users[]
+  embed_configs                embed_configs[]
+  prompt_history               prompt_history[]
+  workspace_agent_invocations  workspace_agent_invocations[]
   documents                    workspace_documents[]
   workspace_suggested_messages workspace_suggested_messages[]
-  embed_configs                embed_configs[]
   threads                      workspace_threads[]
-  workspace_agent_invocations  workspace_agent_invocations[]
-  prompt_history               prompt_history[]
+  workspace_users              workspace_users[]
 }
 
 model workspace_threads {
@@ -158,8 +152,8 @@ model workspace_threads {
   user_id       Int?
   createdAt     DateTime   @default(now())
   lastUpdatedAt DateTime   @default(now())
-  workspace     workspaces @relation(fields: [workspace_id], references: [id], onDelete: Cascade)
   user          users?     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  workspace     workspaces @relation(fields: [workspace_id], references: [id], onDelete: Cascade)
 
   @@index([workspace_id])
   @@index([user_id])
@@ -184,26 +178,26 @@ model workspace_chats {
   response       String
   include        Boolean  @default(true)
   user_id        Int?
-  thread_id      Int? // No relation to prevent whole table migration
-  api_session_id String? // String identifier for only the dev API to partition chats in any mode.
   createdAt      DateTime @default(now())
   lastUpdatedAt  DateTime @default(now())
+  thread_id      Int?
   feedbackScore  Boolean?
-  users          users?   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  api_session_id String?
+  users          users?   @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
 
 model workspace_agent_invocations {
   id            Int        @id @default(autoincrement())
   uuid          String     @unique
-  prompt        String // Contains agent invocation to parse + option additional text for seed.
+  prompt        String
   closed        Boolean    @default(false)
   user_id       Int?
-  thread_id     Int? // No relation to prevent whole table migration
+  thread_id     Int?
   workspace_id  Int
   createdAt     DateTime   @default(now())
   lastUpdatedAt DateTime   @default(now())
-  user          users?     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  workspace     workspaces @relation(fields: [workspace_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  workspace     workspaces @relation(fields: [workspace_id], references: [id], onDelete: Cascade)
+  user          users?     @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@index([uuid])
 }
@@ -214,8 +208,8 @@ model workspace_users {
   workspace_id  Int
   createdAt     DateTime   @default(now())
   lastUpdatedAt DateTime   @default(now())
-  workspaces    workspaces @relation(fields: [workspace_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  users         users      @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  users         users      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  workspaces    workspaces @relation(fields: [workspace_id], references: [id], onDelete: Cascade)
 }
 
 model cache_data {
@@ -244,9 +238,9 @@ model embed_configs {
   createdBy                  Int?
   usersId                    Int?
   createdAt                  DateTime      @default(now())
-  workspace                  workspaces    @relation(fields: [workspace_id], references: [id], onDelete: Cascade)
   embed_chats                embed_chats[]
   users                      users?        @relation(fields: [usersId], references: [id])
+  workspace                  workspaces    @relation(fields: [workspace_id], references: [id], onDelete: Cascade)
 }
 
 model embed_chats {
@@ -259,8 +253,8 @@ model embed_chats {
   embed_id               Int
   usersId                Int?
   createdAt              DateTime      @default(now())
-  embed_config           embed_configs @relation(fields: [embed_id], references: [id], onDelete: Cascade)
   users                  users?        @relation(fields: [usersId], references: [id])
+  embed_config           embed_configs @relation(fields: [embed_id], references: [id], onDelete: Cascade)
 }
 
 model event_logs {
@@ -278,7 +272,7 @@ model slash_command_presets {
   command       String
   prompt        String
   description   String
-  uid           Int      @default(0) // 0 is null user
+  uid           Int      @default(0)
   userId        Int?
   createdAt     DateTime @default(now())
   lastUpdatedAt DateTime @default(now())
@@ -289,13 +283,13 @@ model slash_command_presets {
 
 model document_sync_queues {
   id             Int                        @id @default(autoincrement())
-  staleAfterMs   Int                        @default(604800000) // 7 days
+  staleAfterMs   Int                        @default(604800000)
   nextSyncAt     DateTime
   createdAt      DateTime                   @default(now())
   lastSyncedAt   DateTime                   @default(now())
   workspaceDocId Int                        @unique
-  workspaceDoc   workspace_documents?       @relation(fields: [workspaceDocId], references: [id], onDelete: Cascade)
   runs           document_sync_executions[]
+  workspaceDoc   workspace_documents        @relation(fields: [workspaceDocId], references: [id], onDelete: Cascade)
 }
 
 model document_sync_executions {
@@ -335,7 +329,7 @@ model system_prompt_variables {
   key         String   @unique
   value       String?
   description String?
-  type        String   @default("system") // system, user, dynamic
+  type        String   @default("system")
   userId      Int?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -346,12 +340,12 @@ model system_prompt_variables {
 
 model prompt_history {
   id          Int        @id @default(autoincrement())
-  workspace   workspaces @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   workspaceId Int
   prompt      String
   modifiedBy  Int?
   modifiedAt  DateTime   @default(now())
   user        users?     @relation(fields: [modifiedBy], references: [id])
+  workspace   workspaces @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
   @@index([workspaceId])
 }

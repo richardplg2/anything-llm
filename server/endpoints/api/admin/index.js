@@ -282,7 +282,10 @@ function apiAdminEndpoints(app) {
                   id: 1,
                   status: "pending",
                   code: 'abc-123',
-                  claimedBy: null
+                  maxUses: 5,
+                  usedCount: 0,
+                  claimedBy: [],
+                  claimedUsers: []
                 }
              ]
             }
@@ -324,6 +327,7 @@ function apiAdminEndpoints(app) {
           "application/json": {
             example: {
               workspaceIds: [1,2,45],
+              maxUses: 5,
             }
           }
         }
@@ -338,6 +342,9 @@ function apiAdminEndpoints(app) {
                 id: 1,
                 status: "pending",
                 code: 'abc-123',
+                maxUses: 5,
+                usedCount: 0,
+                claimedByUsers: [],
               },
               error: null,
             }
@@ -363,6 +370,7 @@ function apiAdminEndpoints(app) {
       const body = reqBody(request);
       const { invite, error } = await Invite.create({
         workspaceIds: body?.workspaceIds ?? [],
+        maxUses: body?.maxUses ?? 1,
       });
       response.status(200).json({ invite, error });
     } catch (e) {

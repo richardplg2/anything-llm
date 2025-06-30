@@ -349,7 +349,10 @@
                         "id": 1,
                         "status": "pending",
                         "code": "abc-123",
-                        "claimedBy": null
+                        "maxUses": 5,
+                        "usedCount": 0,
+                        "claimedBy": [],
+                        "claimedUsers": []
                       }
                     ]
                   }
@@ -399,7 +402,10 @@
                     "invite": {
                       "id": 1,
                       "status": "pending",
-                      "code": "abc-123"
+                      "code": "abc-123",
+                      "maxUses": 5,
+                      "usedCount": 0,
+                      "claimedByUsers": []
                     },
                     "error": null
                   }
@@ -439,7 +445,8 @@
                   1,
                   2,
                   45
-                ]
+                ],
+                "maxUses": 5
               }
             }
           }

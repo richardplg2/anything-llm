@@ -18,7 +18,7 @@ function inviteEndpoints(app) {
         return;
       }
 
-      if (invite.status !== "pending") {
+      if (invite.status !== "pending" && invite.status !== "active") {
         response
           .status(200)
           .json({ invite: null, error: "Invite is no longer valid." });
@@ -42,10 +42,24 @@ function inviteEndpoints(app) {
         const { code } = request.params;
         const { username, password } = reqBody(request);
         const invite = await Invite.get({ code });
-        if (!invite || invite.status !== "pending") {
-          response
-            .status(200)
-            .json({ success: false, error: "Invite not found or is invalid." });
+
+        // Check if invite exists and is available for use
+        if (!invite || !Invite.isAvailable(invite)) {
+          let errorMessage = "Invite not found or is invalid.";
+          if (invite) {
+            if (invite.status === "disabled") {
+              errorMessage = "This invite has been disabled.";
+            } else if (invite.status === "exhausted") {
+              errorMessage = "This invite has reached its usage limit.";
+            } else if (
+              invite.maxUses !== null &&
+              invite.usedCount >= invite.maxUses
+            ) {
+              errorMessage = "This invite has reached its usage limit.";
+            }
+          }
+
+          response.status(200).json({ success: false, error: errorMessage });
           return;
         }
 
