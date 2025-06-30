@@ -1,0 +1,75 @@
+# Cursor AI Development Rules
+
+## Commit Message Generation
+- ALWAYS generate commit messages in English only
+- Follow conventional commit format: `type(scope): description`
+- Use imperative mood (e.g., "add", "fix", "update", not "added", "fixed", "updated")
+- Keep the first line under 50 characters
+- Use body for additional details if needed
+- Common types: feat, fix, docs, style, refactor, test, chore
+
+### Commit Types:
+- **feat**: A new feature for the user
+- **fix**: A bug fix for the user
+- **docs**: Documentation changes
+- **style**: Formatting, missing semicolons, etc; no code change
+- **refactor**: Refactoring production code
+- **test**: Adding tests, refactoring test; no production code change
+- **chore**: Updating build tasks, package manager configs, etc; no production code change
+- **perf**: Performance improvements
+- **ci**: Changes to CI configuration files and scripts
+- **build**: Changes that affect the build system or external dependencies
+
+### Examples of good commit messages:
+- `feat(auth): add JWT token validation`
+- `fix(invite): resolve multiple invite usage tracking`
+- `refactor(components): extract common UI components`
+- `docs(readme): update installation instructions`
+- `chore(deps): update react to version 18`
+- `feat(admin): implement invite management system`
+- `fix(workspace): correct user permission validation`
+
+### Examples of bad commit messages:
+- ❌ "fixed bug"
+- ❌ "update code"
+- ❌ "thêm tính năng mới" (Vietnamese)
+- ❌ "修复了错误" (Chinese)
+
+## Code Comments and Documentation
+- Write code comments in English
+- Keep comments concise and meaningful
+- Document complex logic and business rules
+- Use JSDoc format for function documentation
+
+## General Development Guidelines
+- Use English for all technical documentation
+- Maintain English naming conventions for variables, functions, and files
+- Use English for error messages and logs
+- Respond to user queries in Vietnamese but keep all code-related elements in English
+
+## File and Function Naming
+- Use camelCase for JavaScript/TypeScript variables and functions
+- Use PascalCase for React components and classes
+- Use kebab-case for file names (except components)
+- Use SCREAMING_SNAKE_CASE for constants
+- All names should be descriptive and in English
+
+## Code Quality Standards
+- Follow ESLint rules defined in the project
+- Use meaningful variable and function names
+- Keep functions small and focused on single responsibility
+- Add proper error handling
+- Write unit tests when adding new features
+
+## Pull Request and Issue Management
+- Use English for all PR titles and descriptions
+- Reference issue numbers when applicable
+- Provide clear description of changes made
+- Include screenshots for UI changes
+
+## Examples for Current Project Context:
+Based on the staged changes, here are context-appropriate examples:
+- `feat(invite): add multiple usage tracking for invitations`
+- `fix(admin): correct invite row display logic`
+- `refactor(models): update invite and workspace schemas`
+- `chore(db): add migration for multiple invite usage` 
