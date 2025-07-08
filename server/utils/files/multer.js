@@ -90,7 +90,10 @@ const pfpUploadStorage = multer.diskStorage({
  * @param {NextFunction} next
  */
 function handleFileUpload(request, response, next) {
-  const upload = multer({ storage: fileUploadStorage }).single("file");
+  const upload = multer({
+    storage: fileUploadStorage,
+    limits: { fileSize: 10 * 1024 * 1024 },
+  }).single("file");
   upload(request, response, function (err) {
     if (err) {
       response
