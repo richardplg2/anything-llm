@@ -8,7 +8,12 @@ const {
 const OCRLoader = require("../../utils/OCRLoader");
 const { default: slugify } = require("slugify");
 
-async function asImage({ fullFilePath = "", filename = "", options = {} }) {
+async function asImage({
+  fullFilePath = "",
+  filename = "",
+  options = {},
+  userId = null,
+}) {
   let content = await new OCRLoader({
     targetLanguages: options?.ocr?.langList,
   }).ocrImage(fullFilePath);
@@ -40,7 +45,9 @@ async function asImage({ fullFilePath = "", filename = "", options = {} }) {
 
   const document = writeToServerDocuments(
     data,
-    `${slugify(filename)}-${data.id}`
+    `${slugify(filename)}-${data.id}`,
+    null,
+    userId
   );
   trashFile(fullFilePath);
   console.log(`[SUCCESS]: ${filename} converted & ready for embedding.\n`);

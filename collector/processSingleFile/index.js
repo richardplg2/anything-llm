@@ -12,7 +12,7 @@ const {
 } = require("../utils/files");
 const RESERVED_FILES = ["__HOTDIR__.md"];
 
-async function processSingleFile(targetFilename, options = {}) {
+async function processSingleFile(targetFilename, userId = null, options = {}) {
   const fullFilePath = path.resolve(
     WATCH_DIRECTORY,
     normalizePath(targetFilename)
@@ -66,10 +66,17 @@ async function processSingleFile(targetFilename, options = {}) {
   const FileTypeProcessor = require(SUPPORTED_FILETYPE_CONVERTERS[
     processFileAs
   ]);
+
+  console.log(
+    `Processing file: ${targetFilename} as ${processFileAs} in processor ${
+      userId ? "with userId" + userId : "without userId"
+    }.`
+  );
   return await FileTypeProcessor({
     fullFilePath,
     filename: targetFilename,
     options,
+    userId,
   });
 }
 

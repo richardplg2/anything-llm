@@ -8,7 +8,7 @@ const {
 } = require("../../utils/files");
 const { default: slugify } = require("slugify");
 
-async function asEPub({ fullFilePath = "", filename = "" }) {
+async function asEPub({ fullFilePath = "", filename = "", userId = null }) {
   let content = "";
   try {
     const loader = new EPubLoader(fullFilePath, { splitChapters: false });
@@ -45,7 +45,9 @@ async function asEPub({ fullFilePath = "", filename = "" }) {
 
   const document = writeToServerDocuments(
     data,
-    `${slugify(filename)}-${data.id}`
+    `${slugify(filename)}-${data.id}`,
+    null,
+    userId
   );
   trashFile(fullFilePath);
   console.log(`[SUCCESS]: ${filename} converted & ready for embedding.\n`);

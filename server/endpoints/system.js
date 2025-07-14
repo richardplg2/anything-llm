@@ -428,9 +428,10 @@ function systemEndpoints(app) {
   app.get(
     "/system/local-files",
     [validatedRequest, flexUserRoleValid([ROLES.admin, ROLES.manager])],
-    async (_, response) => {
+    async (request, response) => {
       try {
-        const localFiles = await viewLocalFiles();
+        const user = await userFromSession(request, response);
+        const localFiles = await viewLocalFiles(user.id);
         response.status(200).json({ localFiles });
       } catch (e) {
         console.error(e.message, e);

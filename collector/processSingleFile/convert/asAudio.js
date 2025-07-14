@@ -14,7 +14,12 @@ const WHISPER_PROVIDERS = {
   local: LocalWhisper,
 };
 
-async function asAudio({ fullFilePath = "", filename = "", options = {} }) {
+async function asAudio({
+  fullFilePath = "",
+  filename = "",
+  options = {},
+  userId = null,
+}) {
   const WhisperProvider = WHISPER_PROVIDERS.hasOwnProperty(
     options?.whisperProvider
   )
@@ -61,7 +66,9 @@ async function asAudio({ fullFilePath = "", filename = "", options = {} }) {
 
   const document = writeToServerDocuments(
     data,
-    `${slugify(filename)}-${data.id}`
+    `${slugify(filename)}-${data.id}`,
+    null,
+    userId
   );
   trashFile(fullFilePath);
   console.log(

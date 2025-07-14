@@ -89,8 +89,13 @@ const Document = {
     const errors = new Set();
 
     for (const path of additions) {
-      const data = await fileData(path);
+      const data = await fileData(path, userId);
+      console.log(`Processing file: ${path}`, data, userId);
       if (!data) continue;
+
+      console.log(
+        `Adding document ${data.title} to workspace ${workspace.slug}...`
+      );
 
       const docId = uuidv4();
       const { pageContent, ...metadata } = data;

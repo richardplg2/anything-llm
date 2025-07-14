@@ -99,13 +99,15 @@ function createdDate(filepath) {
 function writeToServerDocuments(
   data = {},
   filename,
-  destinationOverride = null
+  destinationOverride = null,
+  userId = null
 ) {
   const destination = destinationOverride
     ? path.resolve(destinationOverride)
     : path.resolve(
         __dirname,
-        "../../../server/storage/documents/custom-documents"
+        "../../../server/storage/documents/" +
+          (userId ? `${userId}/custom-documents` : "default-documents")
       );
   if (!fs.existsSync(destination))
     fs.mkdirSync(destination, { recursive: true });

@@ -67,12 +67,13 @@ class CollectorApi {
    * @param {string} filename - The filename of the document to process
    * @returns {Promise<Object>} - The response from the collector API
    */
-  async processDocument(filename = "") {
+  async processDocument(filename = "", userId) {
     if (!filename) return false;
-
+    console.log("processing", filename, userId);
     const data = JSON.stringify({
       filename,
       options: this.#attachOptions(),
+      userId: userId || null,
     });
 
     return await fetch(`${this.endpoint}/process`, {

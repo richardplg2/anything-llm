@@ -119,9 +119,11 @@ function workspaceEndpoints(app) {
     ],
     async function (request, response) {
       try {
+        const user = await userFromSession(request, response); // Ensure user is authenticated
         const Collector = new CollectorApi();
         const { originalname } = request.file;
         const processingOnline = await Collector.online();
+        console.log("process", originalname);
 
         if (!processingOnline) {
           response
@@ -134,8 +136,10 @@ function workspaceEndpoints(app) {
           return;
         }
 
-        const { success, reason } =
-          await Collector.processDocument(originalname);
+        const { success, reason } = await Collector.processDocument(
+          originalname,
+          user.id
+        );
         if (!success) {
           response.status(500).json({ success: false, error: reason }).end();
           return;
@@ -905,8 +909,10 @@ function workspaceEndpoints(app) {
           return;
         }
 
-        const { success, reason, documents } =
-          await Collector.processDocument(originalname);
+        const { success, reason, documents } = await Collector.processDocument(
+          originalname,
+          user.id
+        );
         if (!success || documents?.length === 0) {
           response.status(500).json({ success: false, error: reason }).end();
           return;

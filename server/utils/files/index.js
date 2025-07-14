@@ -14,18 +14,28 @@ const vectorCachePath =
 
 // Should take in a folder that is a subfolder of documents
 // eg: youtube-subject/video-123.json
-async function fileData(filePath = null) {
+async function fileData(filePath = null, userId = null) {
   if (!filePath) throw new Error("No docPath provided in request");
-  const fullFilePath = path.resolve(documentsPath, normalizePath(filePath));
-  if (!fs.existsSync(fullFilePath) || !isWithin(documentsPath, fullFilePath))
+  const userDocumentsPath = documentsPath + (userId ? `/${userId}` : "");
+  const fullFilePath = path.resolve(userDocumentsPath, normalizePath(filePath));
+  console.log("fullFilePath", fullFilePath);
+  if (
+    !fs.existsSync(fullFilePath) ||
+    !isWithin(userDocumentsPath, fullFilePath)
+  )
     return null;
 
   const data = fs.readFileSync(fullFilePath, "utf8");
   return JSON.parse(data);
 }
 
-async function viewLocalFiles() {
-  if (!fs.existsSync(documentsPath)) fs.mkdirSync(documentsPath);
+async function viewLocalFiles(userId = null) {
+  const userDocumentsPath = documentsPath + (userId ? `/${userId}` : "");
+
+  if (!fs.existsSync(userDocumentsPath)) {
+    fs.mkdirSync(userDocumentsPath, { recursive: true });
+  }
+
   const liveSyncAvailable = await DocumentSyncQueue.enabled();
   const directory = {
     name: "documents",
@@ -33,9 +43,10 @@ async function viewLocalFiles() {
     items: [],
   };
 
-  for (const file of fs.readdirSync(documentsPath)) {
+  for (const file of fs.readdirSync(userDocumentsPath)) {
     if (path.extname(file) === ".md") continue;
-    const folderPath = path.resolve(documentsPath, file);
+    const folderPath = path.resolve(userDocumentsPath, file);
+
     const isFolder = fs.lstatSync(folderPath).isDirectory();
     if (isFolder) {
       const subdocs = {

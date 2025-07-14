@@ -1,6 +1,6 @@
 const { Document } = require("../models/documents");
 const { normalizePath, documentsPath, isWithin } = require("../utils/files");
-const { reqBody } = require("../utils/http");
+const { reqBody, userFromSession } = require("../utils/http");
 const {
   flexUserRoleValid,
   ROLES,
@@ -17,8 +17,22 @@ function documentEndpoints(app) {
     async (request, response) => {
       try {
         const { name } = reqBody(request);
-        const storagePath = path.join(documentsPath, normalizePath(name));
-        if (!isWithin(path.resolve(documentsPath), path.resolve(storagePath)))
+        const user = await userFromSession(request, response); // Ensure user is authenticated
+        const userDocumentsPath = path.join(documentsPath, user.id.toString());
+        if (!fs.existsSync(userDocumentsPath)) {
+          fs.mkdirSync(userDocumentsPath, { recursive: true });
+        }
+        if (!name || name.trim() === "") {
+          response.status(400).json({
+            success: false,
+            message: "Folder name cannot be empty.",
+          });
+          return;
+        }
+        const storagePath = path.join(userDocumentsPath, normalizePath(name));
+        if (
+          !isWithin(path.resolve(userDocumentsPath), path.resolve(storagePath))
+        )
           throw new Error("Invalid folder name.");
 
         if (fs.existsSync(storagePath)) {
@@ -48,6 +62,8 @@ function documentEndpoints(app) {
       try {
         const { files } = reqBody(request);
         const docpaths = files.map(({ from }) => from);
+        const user = await userFromSession(request, response); // Ensure user is authenticated
+        const userDocumentsPath = path.join(documentsPath, user.id.toString());
         const documents = await Document.where({ docpath: { in: docpaths } });
 
         const embeddedFiles = documents.map((doc) => doc.docpath);
@@ -56,13 +72,16 @@ function documentEndpoints(app) {
         );
 
         const movePromises = moveableFiles.map(({ from, to }) => {
-          const sourcePath = path.join(documentsPath, normalizePath(from));
-          const destinationPath = path.join(documentsPath, normalizePath(to));
+          const sourcePath = path.join(userDocumentsPath, normalizePath(from));
+          const destinationPath = path.join(
+            userDocumentsPath,
+            normalizePath(to)
+          );
 
           return new Promise((resolve, reject) => {
             if (
-              !isWithin(documentsPath, sourcePath) ||
-              !isWithin(documentsPath, destinationPath)
+              !isWithin(userDocumentsPath, sourcePath) ||
+              !isWithin(userDocumentsPath, destinationPath)
             )
               return reject("Invalid file location");
 
