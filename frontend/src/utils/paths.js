@@ -58,6 +58,9 @@ export default {
   docs: () => {
     return "#";
   },
+  chatModes: () => {
+    return "https://docs.anythingllm.com/features/chat-modes";
+  },
   mailToMintplex: () => {
     return "mailto:team@mintplexlabs.com";
   },

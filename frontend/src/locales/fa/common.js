@@ -61,6 +61,7 @@ const TRANSLATIONS = {
     optional: null,
     yes: null,
     no: null,
+    search: null,
   },
   settings: {
     title: "تنظیمات سامانه",
@@ -240,6 +241,8 @@ const TRANSLATIONS = {
       query: "پرس‌وجو",
       "desc-end":
         "ممکن است بخواهید هنگامی که هیچ محتوایی یافت نمی‌شود، یک پاسخ رد سفارشی برگردانید.",
+      "tooltip-title": null,
+      "tooltip-description": null,
     },
     temperature: {
       title: "دمای LLM",
@@ -395,8 +398,6 @@ const TRANSLATIONS = {
       "جاسازی فرآیند تبدیل متن به بردارها است. این اعتبارنامه‌ها برای تبدیل فایل‌ها و درخواست‌های شما به فرمتی که AnythingLLM بتواند پردازش کند، ضروری هستند.",
     provider: {
       title: "ارائه‌دهنده جاسازی",
-      description:
-        "هنگام استفاده از موتور جاسازی داخلی AnythingLLM نیازی به تنظیمات نیست.",
     },
   },
   text: {
@@ -405,9 +406,6 @@ const TRANSLATIONS = {
       "تقسیم متن به شما امکان می‌دهد اسناد بزرگ را به بخش‌های کوچک‌تر تقسیم کنید که برای جاسازی و پردازش مناسب‌تر هستند.",
     "desc-end":
       "سعی کنید تعادلی بین اندازه بخش و همپوشانی ایجاد کنید تا از دست رفتن اطلاعات را به حداقل برسانید.",
-    "warn-start": "تغییر این مقادیر نیاز به",
-    "warn-center": "پردازش مجدد تمام اسناد",
-    "warn-end": "خواهد داشت.",
     size: {
       title: "حداکثر اندازه بخش",
       description:
@@ -721,7 +719,7 @@ const TRANSLATIONS = {
     username: null,
     username_description: null,
     new_password: null,
-    passwort_description: null,
+    password_description: null,
     cancel: null,
     update_account: null,
     theme: null,

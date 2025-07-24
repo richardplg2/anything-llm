@@ -70,6 +70,7 @@ const TRANSLATIONS = {
     optional: "Optional",
     yes: "Ja",
     no: "Nein",
+    search: null,
   },
   settings: {
     title: "Instanzeinstellungen",
@@ -338,6 +339,8 @@ const TRANSLATIONS = {
       query: "Abfrage",
       "desc-end":
         "modus, möchten Sie vielleicht eine benutzerdefinierte Ablehnungsantwort zurückgeben, wenn kein Kontext gefunden wird.",
+      "tooltip-title": null,
+      "tooltip-description": null,
     },
     temperature: {
       title: "LLM-Temperatur",
@@ -450,7 +453,7 @@ const TRANSLATIONS = {
       description: "Passen Sie die Benutzeroberfläche von AnythingLLM an.",
     },
     branding: {
-      title: "Branding & Whitelabeling“",
+      title: "Branding & Whitelabeling",
       description:
         "Individualisieren Sie Ihre AnythingLLM-Instanz durch eigenes Branding.",
     },
@@ -492,7 +495,7 @@ const TRANSLATIONS = {
           "Geben Sie einen Anwendungsnamen ein, der auf der Login-Seite erscheint.",
       },
       "chat-message-alignment": {
-        title: "Nachrichtenanordnung im Chatd",
+        title: "Nachrichtenanordnung im Chat",
         description:
           "Bestimmen Sie den Ausrichtungsmodus der Chat-Nachrichten.",
       },
@@ -594,8 +597,6 @@ const TRANSLATIONS = {
       "Einbettung ist der Prozess, Text in Vektoren umzuwandeln. Diese Anmeldeinformationen sind erforderlich, um Ihre Dateien und Prompts in ein Format umzuwandeln, das AnythingLLM zur Verarbeitung verwenden kann.",
     provider: {
       title: "Einbettungsanbieter",
-      description:
-        "Bei Verwendung der nativen Einbettungs-Engine von AnythingLLM ist keine Einrichtung erforderlich.",
     },
   },
   text: {
@@ -604,9 +605,6 @@ const TRANSLATIONS = {
       "Manchmal möchten Sie vielleicht die Standardmethode ändern, wie neue Dokumente gesplittet und gechunkt werden, bevor sie in Ihre Vektordatenbank eingefügt werden.",
     "desc-end":
       "Sie sollten diese Einstellung nur ändern, wenn Sie verstehen, wie Textsplitting funktioniert und welche Nebenwirkungen es hat.",
-    "warn-start": "Änderungen hier gelten nur für",
-    "warn-center": "neu eingebettete Dokumente",
-    "warn-end": ", nicht für bestehende Dokumente.",
     size: {
       title: "Textchunk-Größe",
       description:
@@ -933,7 +931,7 @@ const TRANSLATIONS = {
     default_agent_description: "– Standardagent für diesen Workspace.",
     custom_agents_coming_soon: "Eigene Agenten bald verfügbar!",
     slash_reset: "/reset",
-    preset_reset_description: "hatverlauf löschen und neuen Chat starten",
+    preset_reset_description: "Chatverlauf löschen und neuen Chat starten",
     add_new_preset: "Neues Preset anlegen",
     command: "Befehl",
     your_command: "dein-befehl",
@@ -962,12 +960,12 @@ const TRANSLATIONS = {
     remove_profile_picture: "Profilbild entfernen",
     username: "Nutzername",
     username_description:
-      "Der Nutzername darf nur kleine Buchstaben, Zahlen, Unterstrich und Bindestriche ohne Leerzeichen.",
+      "Der Nutzername darf nur kleine Buchstaben, Zahlen, Unterstriche und Bindestriche ohne Leerzeichen enthalten.",
     new_password: "Neues Passwort",
-    passwort_description: "Das Passwort muss mindestens 8 Zeichen haben.",
+    password_description: "Das Passwort muss mindestens 8 Zeichen haben.",
     cancel: "Abbrechen",
     update_account: "Account updaten",
-    theme: "Bevozugtes Design",
+    theme: "Bevorzugtes Design",
     language: "Bevorzugte Sprache",
     failed_upload: "Profilbild konnte nicht hochgeladen werden: {{error}}",
     upload_success: "Profilbild hochgeladen.",

@@ -61,6 +61,7 @@ const TRANSLATIONS = {
     optional: null,
     yes: null,
     no: null,
+    search: null,
   },
   settings: {
     title: "Impostazioni istanza",
@@ -243,6 +244,8 @@ const TRANSLATIONS = {
       query: "query",
       "desc-end":
         "è attiva, potresti voler restituire una risposta di rifiuto personalizzata quando non viene trovato alcun contesto.",
+      "tooltip-title": null,
+      "tooltip-description": null,
     },
     temperature: {
       title: "Temperatura LLM",
@@ -401,8 +404,6 @@ const TRANSLATIONS = {
       "L'embedding è il processo di trasformazione del testo in vettori. Queste credenziali sono necessarie per trasformare i file e i prompt in un formato che AnythingLLM può utilizzare per l'elaborazione.",
     provider: {
       title: "Provider di embedding",
-      description:
-        "Non è richiesta alcuna configurazione quando si utilizza il motore di embedding nativo di AnythingLLM.",
     },
   },
   text: {
@@ -411,9 +412,6 @@ const TRANSLATIONS = {
       "A volte, potresti voler cambiare il modo predefinito in cui i nuovi documenti vengono suddivisi e spezzettati in blocchi prima di essere inseriti nel tuo database vettoriale.",
     "desc-end":
       "Dovresti modificare questa impostazione solo se capisci come funziona la suddivisione del testo e i suoi effetti collaterali.",
-    "warn-start": "Le modifiche qui si applicheranno solo a",
-    "warn-center": "nuovi documenti incorporati",
-    "warn-end": ", non documenti esistenti.",
     size: {
       title: "Dimensioni blocco di testo",
       description:
@@ -727,7 +725,7 @@ const TRANSLATIONS = {
     username: null,
     username_description: null,
     new_password: null,
-    passwort_description: null,
+    password_description: null,
     cancel: null,
     update_account: null,
     theme: null,
