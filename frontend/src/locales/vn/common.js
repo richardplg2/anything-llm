@@ -98,12 +98,14 @@ const TRANSLATIONS = {
   login: {
     "multi-user": {
       welcome: "Chào mừng đến với",
-      "placeholder-username": "Người dùngname",
+      "placeholder-username": "Tên người dùng",
       "placeholder-password": "Mật khẩu",
       login: "Đăng nhập",
       validating: "Đang xác thực...",
       "forgot-pass": "Quên mật khẩu",
       reset: "Đặt lại",
+      "no-account": "Chưa có tài khoản",
+      "create-account": "Tạo tài khoản",
     },
     "sign-in": {
       start: "Đăng nhập vào",

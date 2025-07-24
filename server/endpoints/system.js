@@ -270,6 +270,132 @@ function systemEndpoints(app) {
     }
   });
 
+  app.post("/register", async (request, response) => {
+    try {
+      const { username, password, referralCode } = reqBody(request);
+
+      // Check if multi-user mode is enabled
+      if (!(await SystemSettings.isMultiUserMode())) {
+        response.status(403).json({
+          success: false,
+          error: "Registration is not available in single-user mode.",
+        });
+        return;
+      }
+
+      // Check if user already exists
+      const existingUser = await User._get({ username: String(username) });
+      if (existingUser) {
+        response.status(200).json({
+          success: false,
+          error: "Username already exists.",
+        });
+        return;
+      }
+
+      // If referral code is provided, validate it against invite system
+      if (referralCode) {
+        const { Invite } = require("../models/invite");
+        const invite = await Invite.get({ code: referralCode });
+        
+        if (!invite || !Invite.isAvailable(invite)) {
+          let errorMessage = "Invalid referral code.";
+          if (invite) {
+            if (invite.status === "disabled") {
+              errorMessage = "This referral code has been disabled.";
+            } else if (invite.status === "exhausted") {
+              errorMessage = "This referral code has reached its usage limit.";
+            } else if (
+              invite.maxUses !== null &&
+              invite.usedCount >= invite.maxUses
+            ) {
+              errorMessage = "This referral code has reached its usage limit.";
+            }
+          }
+
+          response.status(200).json({ success: false, error: errorMessage });
+          return;
+        }
+
+        // Create user with invite
+        const { user, error } = await User.create({
+          username,
+          password,
+          role: "default",
+        });
+
+        if (!user) {
+          response.status(200).json({
+            success: false,
+            error: error || "Could not create user.",
+          });
+          return;
+        }
+
+        // Mark invite as used
+        await Invite.markClaimed(invite.id, user);
+        await EventLogs.logEvent(
+          "invite_accepted",
+          {
+            username: user.username,
+          },
+          user.id
+        );
+      } else {
+        // Create user without invite (public registration)
+        const { user, error } = await User.create({
+          username,
+          password,
+          role: "default",
+        });
+
+        if (!user) {
+          response.status(200).json({
+            success: false,
+            error: error || "Could not create user.",
+          });
+          return;
+        }
+
+        // Create default workspace for new user
+        try {
+          const { Workspace } = require("../models/workspace");
+          const defaultWorkspace = await Workspace.new("My Workspace", user.id);
+
+          if (defaultWorkspace.workspace) {
+            await EventLogs.logEvent(
+              "default_workspace_created",
+              {
+                workspaceName: defaultWorkspace.workspace.name,
+                username: user.username,
+              },
+              user.id
+            );
+          }
+        } catch (workspaceError) {
+          console.error("Error creating default workspace:", workspaceError);
+          // Don't fail registration if workspace creation fails
+        }
+
+        await EventLogs.logEvent(
+          "user_created",
+          {
+            username: user.username,
+          },
+          user.id
+        );
+      }
+
+      response.status(200).json({ success: true, error: null });
+    } catch (e) {
+      console.error(e);
+      response.status(500).json({
+        success: false,
+        error: "An error occurred during registration.",
+      });
+    }
+  });
+
   app.get(
     "/request-token/sso/simple",
     [simpleSSOEnabled],

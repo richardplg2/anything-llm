@@ -7,6 +7,7 @@ export default function InviteRow({ invite }) {
   const rowRef = useRef(null);
   const [status, setStatus] = useState(invite.status);
   const [copied, setCopied] = useState(false);
+  const [refCopied, setRefCopied] = useState(false);
   const handleDelete = async () => {
     if (
       !window.confirm(
@@ -27,6 +28,13 @@ export default function InviteRow({ invite }) {
     );
     setCopied(true);
   };
+  const copyReferralLink = () => {
+    if (!invite) return false;
+    window.navigator.clipboard.writeText(
+      `${window.location.origin}?ref=${invite.code}`
+    );
+    setRefCopied(true);
+  };
 
   useEffect(() => {
     function resetStatus() {
@@ -37,6 +45,16 @@ export default function InviteRow({ invite }) {
     }
     resetStatus();
   }, [copied]);
+
+  useEffect(() => {
+    function resetRefStatus() {
+      if (!refCopied) return false;
+      setTimeout(() => {
+        setRefCopied(false);
+      }, 3000);
+    }
+    resetRefStatus();
+  }, [refCopied]);
 
   return (
     <>
@@ -74,6 +92,13 @@ export default function InviteRow({ invite }) {
                 className="text-xs font-medium text-blue-300 rounded-lg hover:text-blue-400 hover:underline"
               >
                 {copied ? "Copied" : "Copy Invite Link"}
+              </button>
+              <button
+                onClick={copyReferralLink}
+                disabled={refCopied}
+                className="text-xs font-medium text-green-300 rounded-lg hover:text-green-400 hover:underline"
+              >
+                {refCopied ? "Copied" : "Copy Ref Link"}
               </button>
               <button
                 onClick={handleDelete}

@@ -119,6 +119,28 @@ const System = {
         return { success: false, error: e.message };
       });
   },
+  register: async function (body) {
+    return await fetch(`${API_BASE}/register`, {
+      method: "POST",
+      headers: baseHeaders(),
+      body: JSON.stringify({
+        username: body.username,
+        password: body.password,
+        referralCode: body.referralCode,
+      }),
+    })
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || "Error creating account.");
+        }
+        return data;
+      })
+      .catch((e) => {
+        console.error(e);
+        return { success: false, error: e.message };
+      });
+  },
 
   checkDocumentProcessorOnline: async () => {
     return await fetch(`${API_BASE}/system/document-processing-status`, {

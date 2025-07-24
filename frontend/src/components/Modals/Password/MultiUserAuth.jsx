@@ -165,6 +165,147 @@ const ResetPasswordForm = ({ onSubmit }) => {
   );
 };
 
+const RegisterForm = ({ onSubmit, setShowRegisterForm, customAppName }) => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [repassword, setRepassword] = useState("");
+  const [referral, setReferral] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    // Get referral code from URL query parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get("ref");
+    if (refCode) {
+      setReferral(refCode);
+    }
+  }, []);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setError(null);
+
+    // Validate passwords match
+    if (password !== repassword) {
+      setError(t("login.register.passwords-match"));
+      return;
+    }
+
+    // Validate required fields
+    if (!username.trim()) {
+      setError(t("login.register.username-required"));
+      return;
+    }
+
+    if (!password.trim()) {
+      setError(t("login.register.password-required"));
+      return;
+    }
+
+    setLoading(true);
+    onSubmit({
+      username: username.trim(),
+      password: password,
+      referralCode: referral.trim() || null,
+      setLoading: setLoading,
+    });
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col justify-center items-center relative rounded-2xl bg-theme-bg-secondary md:shadow-[0_4px_14px_rgba(0,0,0,0.25)] md:px-12 py-12 -mt-4 md:mt-0"
+    >
+      <div className="flex items-start justify-between pt-11 pb-9 rounded-t">
+        <div className="flex items-center flex-col gap-y-4">
+          <div className="flex gap-x-1">
+            <h3 className="text-md md:text-2xl font-bold text-white text-center white-space-nowrap hidden md:block">
+              {t("login.register.welcome")}
+            </h3>
+            <p className="text-4xl md:text-2xl font-bold bg-gradient-to-r from-[#75D6FF] via-[#FFFFFF] light:via-[#75D6FF] to-[#FFFFFF] light:to-[#75D6FF] bg-clip-text text-transparent">
+              {customAppName || "AnythingLLM"}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div className="w-full px-4 md:px-12">
+        <div className="w-full flex flex-col gap-y-4">
+          <div className="w-screen md:w-full md:px-0 px-6">
+            <input
+              name="username"
+              type="text"
+              placeholder={t("login.register.placeholder-username")}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="border-none bg-theme-settings-input-bg text-theme-text-primary placeholder:text-theme-settings-input-placeholder focus:outline-primary-button active:outline-primary-button outline-none text-sm rounded-md p-2.5 w-full h-[48px] md:w-[300px] md:h-[34px]"
+              required={true}
+              autoComplete="off"
+            />
+          </div>
+          <div className="w-screen md:w-full md:px-0 px-6">
+            <input
+              name="password"
+              type="password"
+              placeholder={t("login.register.placeholder-password")}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="border-none bg-theme-settings-input-bg text-theme-text-primary placeholder:text-theme-settings-input-placeholder focus:outline-primary-button active:outline-primary-button outline-none text-sm rounded-md p-2.5 w-full h-[48px] md:w-[300px] md:h-[34px]"
+              required={true}
+              autoComplete="off"
+            />
+          </div>
+          <div className="w-screen md:w-full md:px-0 px-6">
+            <input
+              name="repassword"
+              type="password"
+              placeholder={t("login.register.placeholder-repassword")}
+              value={repassword}
+              onChange={(e) => setRepassword(e.target.value)}
+              className="border-none bg-theme-settings-input-bg text-theme-text-primary placeholder:text-theme-settings-input-placeholder focus:outline-primary-button active:outline-primary-button outline-none text-sm rounded-md p-2.5 w-full h-[48px] md:w-[300px] md:h-[34px]"
+              required={true}
+              autoComplete="off"
+            />
+          </div>
+          <div className="w-screen md:w-full md:px-0 px-6">
+            <input
+              name="referral"
+              type="text"
+              placeholder={t("login.register.placeholder-referral")}
+              value={referral}
+              onChange={(e) => setReferral(e.target.value)}
+              className="border-none bg-theme-settings-input-bg text-theme-text-primary placeholder:text-theme-settings-input-placeholder focus:outline-primary-button active:outline-primary-button outline-none text-sm rounded-md p-2.5 w-full h-[48px] md:w-[300px] md:h-[34px]"
+              autoComplete="off"
+            />
+          </div>
+          {error && (
+            <p className="text-red-400 text-sm px-6 md:px-0">Error: {error}</p>
+          )}
+        </div>
+      </div>
+      <div className="flex items-center md:p-12 px-10 mt-12 md:mt-0 space-x-2 border-gray-600 w-full flex-col gap-y-8">
+        <button
+          disabled={loading}
+          type="submit"
+          className="md:text-primary-button md:bg-transparent text-dark-text text-sm font-bold focus:ring-4 focus:outline-none rounded-md border-[1.5px] border-primary-button md:h-[34px] h-[48px] md:hover:text-white md:hover:bg-primary-button bg-primary-button focus:z-10 w-full disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading
+            ? t("login.register.creating")
+            : t("login.register.create-account")}
+        </button>
+        <button
+          type="button"
+          className="text-white text-sm flex gap-x-1 hover:text-primary-button hover:underline"
+          onClick={() => setShowRegisterForm(false)}
+        >
+          {t("login.register.have-account")}?
+          <b>{t("login.register.sign-in")}</b>
+        </button>
+      </div>
+    </form>
+  );
+};
+
 export default function MultiUserAuth() {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
@@ -175,6 +316,7 @@ export default function MultiUserAuth() {
   const [token, setToken] = useState(null);
   const [showRecoveryForm, setShowRecoveryForm] = useState(false);
   const [showResetPasswordForm, setShowResetPasswordForm] = useState(false);
+  const [showRegisterForm, setShowRegisterForm] = useState(false);
   const [customAppName, setCustomAppName] = useState(null);
 
   const {
@@ -213,6 +355,27 @@ export default function MultiUserAuth() {
 
   const handleDownloadComplete = () => setDownloadComplete(true);
   const handleResetPassword = () => setShowRecoveryForm(true);
+  const handleShowRegister = () => setShowRegisterForm(true);
+  
+  const handleRegisterSubmit = async (registerData) => {
+    setError(null);
+    const { setLoading: setRegisterLoading } = registerData;
+    
+    const { success, error } = await System.register(registerData);
+    
+    if (success) {
+      setShowRegisterForm(false);
+      showToast(
+        "Account created successfully! Please login with your credentials.",
+        "success",
+        { clear: true }
+      );
+    } else {
+      showToast(error, "error", { clear: true });
+    }
+    setRegisterLoading(false);
+  };
+
   const handleRecoverySubmit = async (username, recoveryCodes) => {
     const { success, resetToken, error } = await System.recoverAccount(
       username,
@@ -267,6 +430,15 @@ export default function MultiUserAuth() {
     fetchCustomAppName();
   }, []);
 
+  useEffect(() => {
+    // Check if there's a referral code in the URL and automatically show register form
+    const urlParams = new URLSearchParams(window.location.search);
+    const refCode = urlParams.get("ref");
+    if (refCode) {
+      setShowRegisterForm(true);
+    }
+  }, []);
+
   if (showRecoveryForm) {
     return (
       <RecoveryForm
@@ -278,6 +450,17 @@ export default function MultiUserAuth() {
 
   if (showResetPasswordForm)
     return <ResetPasswordForm onSubmit={handleResetSubmit} />;
+  
+  if (showRegisterForm) {
+    return (
+      <RegisterForm
+        onSubmit={handleRegisterSubmit}
+        setShowRegisterForm={setShowRegisterForm}
+        customAppName={customAppName}
+      />
+    );
+  }
+
   return (
     <>
       <form onSubmit={handleLogin}>
@@ -340,6 +523,14 @@ export default function MultiUserAuth() {
             >
               {t("login.multi-user.forgot-pass")}?
               <b>{t("login.multi-user.reset")}</b>
+            </button>
+            <button
+              type="button"
+              className="text-white text-sm flex gap-x-1 hover:text-primary-button hover:underline"
+              onClick={handleShowRegister}
+            >
+              {t("login.multi-user.no-account")}?
+              <b>{t("login.multi-user.create-account")}</b>
             </button>
           </div>
         </div>
